@@ -156,11 +156,9 @@ d:\MV\
 │   ├── elexon-data-investigation.md    # Detailed empirical investigation & mathematical audit report
 │   └── screenshots/                    # Verified high-resolution UI captures
 ├── scripts/
-│   ├── elexon_api_investigation.py     # Standalone reproducible API verification script
-│   └── test_elexon_api.py              # Smoke test utility
+│   └── elexon_api_investigation.py     # Standalone reproducible API verification script
 ├── Dockerfile                          # Multi-stage production container specification
 ├── docker-compose.yml                  # Local container orchestration
-├── render.yaml                         # Render Infrastructure-as-Code blueprint
 ├── .dockerignore                       # Docker build context exclusions
 ├── pytest.ini                          # Pytest configuration
 └── README.md                           # Documentation and setup instructions
@@ -259,27 +257,14 @@ curl http://localhost:8000/api/health
 
 ---
 
-### 6.2 Cloud Deployment Architecture (Target: Render)
+### 6.2 Cloud Container Deployment Architecture
 
-#### Deployment Target Selection & Rationale:
-**Render** was chosen as the primary deployment platform for the following architectural reasons:
-1. **Native Multi-Stage Docker Support:** Render natively builds and runs Dockerfiles with no proprietary buildpack restrictions.
-2. **Single Dynamic Port `$PORT` Support:** Render assigns dynamic port numbers via the `$PORT` environment variable, which our `main.py` entrypoint and Dockerfile `CMD` handle natively.
-3. **Automatic HTTPS & Health Checks:** Render provides free automated TLS certificates and monitors the `/api/health` endpoint.
-4. **Declarative Infrastructure-as-Code:** The repository includes a complete [`render.yaml`](file:///D:/MV/render.yaml) blueprint for 1-click zero-configuration deployment.
-5. **Suitability vs Alternatives:** Unlike Vercel (which enforces serverless function cold starts and lacks persistent background loops for SQLite), Render runs continuous container processes suited to ASGI servers and SQLite databases.
-
-#### Deployment Steps on Render:
-1. Push this repository to GitHub.
-2. Log into [Render Dashboard](https://dashboard.render.com/).
-3. Click **"New +"** $\rightarrow$ **"Blueprint"**.
-4. Connect your GitHub repository and select the repository.
-5. Render detects [`render.yaml`](file:///D:/MV/render.yaml) automatically and configures:
-   - **Environment:** Docker
-   - **Dockerfile:** `Dockerfile`
-   - **Health Check Path:** `/api/health`
-   - **Plan:** Free
-6. Click **"Apply"**. Render will build the multi-stage Docker image, compile the React bundle, pre-seed the SQLite database, and launch the service with a public HTTPS URL (e.g., `https://windsight.onrender.com`).
+The application is architected for zero-dependency container deployment on any modern cloud container runtime (AWS ECS/Fargate, Google Cloud Run, Azure Container Apps, or Kubernetes):
+1. **Multi-Stage Build:** The Dockerfile uses `node:22-alpine` to compile the React/TypeScript frontend and `python:3.10-slim` for the final runtime, resulting in a minimal attack surface.
+2. **Single Dynamic Port Support:** The application binds to the dynamic `$PORT` environment variable (defaulting to 8000), making it directly compatible with cloud ingress controllers.
+3. **Embedded Pre-Populated Database:** The SQLite database is pre-seeded during container initialization from bundled seed records, allowing the service to respond to analytical queries immediately without mandatory external API calls on cold start.
+4. **Automated Health Probes:** Native HTTP health check at `/api/health` monitors service uptime, database connectivity, and record counts.
+5. **Non-Root Execution:** The production container runs under unprivileged `appuser` (UID 1000) for security hardening.
 
 ---
 
@@ -551,8 +536,7 @@ curl -X POST "http://localhost:8000/api/sync" \
 | **Error & Horizon Analysis** | **Complete** | Dual-tab intraday residuals bar chart and 31-day January trend line chart. |
 | **Data Table & CSV Export** | **Complete** | Searchable interval audit records and escaped RFC-4180 CSV export. |
 | **Methodology Modal** | **Complete** | Embedded analytical assumptions, D-1 context, market timings, and disclaimers. |
-| **Multi-Stage Container** | **Complete** | Multi-stage Dockerfile (`node:22-alpine` builder, `python:3.10-slim` runner, non-root `appuser`). |
-| **Cloud Deployment Blueprint**| **Complete** | Render Infrastructure-as-Code specification (`render.yaml`) and `docker-compose.yml`. |
+| **Cloud Deployment Specification**| **Complete** | Production multi-stage `Dockerfile` and `docker-compose.yml`. |
 | **End-to-End Verification** | **Complete** | 32 backend tests passed, 8 frontend tests passed, browser E2E verified on production port 8000. |
 
 ---
