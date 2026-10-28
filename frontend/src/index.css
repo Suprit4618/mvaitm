@@ -30,6 +30,12 @@
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-feature-settings: "tnum" 1, "zero" 1;
   }
+
+  /* Prevent native datalist indicator from overlapping date text on Windows/Chromium */
+  input[list]::-webkit-calendar-picker-indicator {
+    display: none !important;
+    opacity: 0;
+  }
 }
 
 /* Custom scrollbars for data tables and modals */

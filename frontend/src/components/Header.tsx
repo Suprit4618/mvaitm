@@ -1,3 +1,4 @@
+import React from 'react';
 import { Wind, RefreshCw, AlertCircle } from 'lucide-react';
 import type { HealthResponse } from '../types/api';
 
@@ -15,63 +16,50 @@ export const Header: React.FC<HeaderProps> = ({
   syncing
 }) => {
   return (
-    <header className="bg-white border-b border-[#E7E5DE] px-6 py-3.5 sticky top-0 z-40">
+    <header className="bg-white border-b border-[#E7E5DE] px-6 py-3">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Brand & Purpose */}
+        {/* Brand & Market Context */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#176B4D]/10 border border-[#176B4D]/20 flex items-center justify-center text-[#176B4D] shrink-0">
-            <Wind className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-lg bg-[#176B4D]/10 flex items-center justify-center text-[#176B4D] shrink-0">
+            <Wind className="w-4 h-4" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <span className="text-base font-bold tracking-tight text-[#202521]">
                 WindSight
               </span>
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#176B4D]/10 text-[#176B4D] border border-[#176B4D]/20">
-                Forecast Intelligence
-              </span>
-              <span className="text-[11px] font-medium text-[#777C76] hidden md:inline">
-                Historical Audit Console
+              <span className="text-xs text-[#777C76] font-medium hidden sm:inline">
+                / Wholesale Day-Ahead Forecast Intelligence
               </span>
             </div>
-            <p className="text-[11px] text-[#777C76] mt-0.5 font-normal">
-              UK Wholesale Electricity Procurement Analysis &bull; Elexon BMRS Verified
+            <p className="text-[11px] text-[#777C76] mt-0.5 sm:hidden">
+              Wholesale Day-Ahead Forecast Intelligence
             </p>
           </div>
         </div>
 
-        {/* Status Indicators & Sync Action */}
-        <div className="flex items-center gap-2.5 text-xs">
-          {/* Subtle Connection Status */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#F7F6F2] border border-[#E7E5DE] text-[#202521]">
-            {healthLoading ? (
-              <>
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span className="text-[#777C76]">Connecting...</span>
-              </>
-            ) : health?.status === 'ok' ? (
-              <>
-                <span className="w-2 h-2 rounded-full bg-[#176B4D]" />
-                <span className="font-medium text-[#202521]">System Live</span>
-                <span className="text-[#E7E5DE]">&bull;</span>
-                <span className="text-[#777C76] font-mono text-[11px]">
-                  {health.database.actual_days_count} Days Cached
-                </span>
-              </>
-            ) : (
-              <>
-                <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-                <span className="text-rose-700 font-medium">Disconnected</span>
-              </>
-            )}
+        {/* Data Provenance & Actions */}
+        <div className="flex items-center gap-4 text-xs">
+          {/* Real Market Data Attribution (No AI Slop Badges) */}
+          <div className="text-[11px] text-[#777C76] hidden md:flex items-center gap-1.5">
+            <span>Elexon BMRS Verified</span>
+            <span>&bull;</span>
+            <span>National Grid ESO WINDFOR</span>
           </div>
 
-          {/* Sync Button */}
+          {health?.status !== 'ok' && !healthLoading && (
+            <div className="flex items-center gap-1 text-rose-600 text-xs font-medium">
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span>Offline</span>
+            </div>
+          )}
+
+          {/* Sync Action */}
           <button
             onClick={onSync}
             disabled={syncing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#F7F6F2] text-[#202521] border border-[#E7E5DE] transition-colors disabled:opacity-50 cursor-pointer font-medium shadow-2xs"
-            title="Synchronize or refresh database directly from live Elexon API"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F7F6F2] hover:bg-[#EAE8E1] text-[#202521] border border-[#E7E5DE] transition-colors disabled:opacity-50 cursor-pointer font-medium text-xs"
+            title="Refresh Lakehouse from Elexon BMRS API"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin text-[#176B4D]' : 'text-[#777C76]'}`} />
             <span>{syncing ? 'Syncing...' : 'Sync Elexon'}</span>

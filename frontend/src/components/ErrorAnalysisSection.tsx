@@ -74,7 +74,7 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
           </h3>
           <p className="text-xs text-[#777C76] mt-0.5">
             {activeTab === 'daily' && 'Intraday error residuals by delivery interval (Forecast - Actual)'}
-            {activeTab === 'diurnal' && 'Average forecast accuracy by delivery hour across all 744 January 2026 hours (Objective 4)'}
+            {activeTab === 'diurnal' && 'Average forecast accuracy by delivery hour across all 744 January 2026 hours'}
             {activeTab === 'monthly' && 'Full January 2026 Monthly Trend across 31 decision days (744 hours)'}
           </p>
         </div>
@@ -138,10 +138,10 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
 
           <div className="w-full h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dailyErrorData} margin={{ top: 10, right: 15, left: 10, bottom: 20 }}>
+              <BarChart data={dailyErrorData} margin={{ top: 10, right: 15, left: 15, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E7E5DE" vertical={false} />
                 <XAxis dataKey="label" stroke="#777C76" fontSize={11} tickLine={false} interval={viewMode === 'hourly' ? 1 : 3} />
-                <YAxis stroke="#777C76" fontSize={11} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(1)}k`} unit=" MW" />
+                <YAxis stroke="#777C76" fontSize={11} tickLine={false} width={42} tickFormatter={(v) => `${(v / 1000).toFixed(1)}k`} />
                 <ReferenceLine y={0} stroke="#777C76" strokeWidth={1} />
                 <Tooltip
                   content={({ active, payload }) => {
@@ -212,10 +212,10 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
 
               <div className="w-full h-[260px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={diurnalData} margin={{ top: 10, right: 15, left: 10, bottom: 20 }}>
+                  <ComposedChart data={diurnalData} margin={{ top: 10, right: 15, left: 15, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E7E5DE" vertical={false} />
                     <XAxis dataKey="label" stroke="#777C76" fontSize={11} tickLine={false} interval={1} />
-                    <YAxis stroke="#777C76" fontSize={11} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} unit=" MW" />
+                    <YAxis stroke="#777C76" fontSize={11} tickLine={false} width={42} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
                     <ReferenceLine y={0} stroke="#777C76" strokeWidth={1} />
                     <Tooltip
                       content={({ active, payload }) => {
@@ -279,10 +279,10 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
 
               <div className="w-full h-[260px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyTrendData} margin={{ top: 10, right: 15, left: 10, bottom: 20 }}>
+                  <LineChart data={monthlyTrendData} margin={{ top: 10, right: 15, left: 15, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E7E5DE" vertical={false} />
                     <XAxis dataKey="label" stroke="#777C76" fontSize={11} tickLine={false} interval={2} />
-                    <YAxis stroke="#777C76" fontSize={11} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} unit=" MW" />
+                    <YAxis stroke="#777C76" fontSize={11} tickLine={false} width={42} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
                     <ReferenceLine y={0} stroke="#777C76" strokeWidth={1} />
                     <Tooltip
                       content={({ active, payload }) => {

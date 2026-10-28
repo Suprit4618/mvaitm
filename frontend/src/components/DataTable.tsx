@@ -122,16 +122,14 @@ export const DataTable: React.FC<DataTableProps> = ({
                   <td className="py-2 px-3.5 text-[#777C76] text-[11px]">
                     {item.publish_time ? item.publish_time.slice(0, 16).replace('T', ' ') : '—'}
                   </td>
-                  <td className="py-2 px-3.5 text-center">
-                    <span
-                      className={`inline-block px-2 py-0.5 text-[10px] rounded-full uppercase tracking-wider font-sans font-semibold ${
-                        item.status === 'complete'
-                          ? 'bg-[#176B4D]/10 text-[#176B4D] border border-[#176B4D]/20'
-                          : 'bg-rose-50 text-rose-700 border border-rose-200'
-                      }`}
-                    >
-                      {item.status}
-                    </span>
+                  <td className="py-2 px-3.5 text-center font-sans text-[11px]">
+                    {item.status === 'complete' ? (
+                      <span className="text-[#777C76]">Delivered</span>
+                    ) : (
+                      <span className="inline-block px-2 py-0.5 rounded text-[10px] uppercase font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                        {item.status}
+                      </span>
+                    )}
                   </td>
                 </tr>
               );

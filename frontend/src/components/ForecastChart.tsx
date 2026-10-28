@@ -120,7 +120,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
       {/* Chart Canvas */}
       <div className="w-full h-[340px]">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={chartData} margin={{ top: 10, right: 15, left: 10, bottom: 20 }}>
+          <ComposedChart data={chartData} margin={{ top: 10, right: 15, left: 15, bottom: 20 }}>
             <defs>
               <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#176B4D" stopOpacity={0.12} />
@@ -140,9 +140,9 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
               stroke="#777C76"
               fontSize={11}
               tickLine={false}
+              width={42}
               tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
               domain={['auto', 'auto']}
-              unit=" MW"
             />
             <Tooltip content={<CustomTooltip />} />
             

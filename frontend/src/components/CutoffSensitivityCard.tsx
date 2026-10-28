@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, TrendingDown, TrendingUp, Check, ArrowRight } from 'lucide-react';
+import { Clock, TrendingDown, TrendingUp, Check } from 'lucide-react';
 import type { CutoffComparisonResponse } from '../types/api';
 import { formatMW, formatSignedMW } from '../utils/formatters';
 
@@ -36,12 +36,9 @@ export const CutoffSensitivityCard: React.FC<CutoffSensitivityCardProps> = ({
             <h3 className="text-base font-semibold text-[#202521] m-0 tracking-tight">
               Decision Cutoff Sensitivity Matrix
             </h3>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#176B4D]/10 text-[#176B4D] border border-[#176B4D]/20">
-              Objective 5 Answered
-            </span>
           </div>
           <p className="text-xs text-[#777C76] mt-0.5">
-            How changing the internal procurement decision cutoff alters forecast accuracy on {delivery_date} (Decided {decision_date})
+            Forecast accuracy across trading cutoffs for delivery on {delivery_date} (Decided {decision_date})
           </p>
         </div>
 
@@ -81,13 +78,9 @@ export const CutoffSensitivityCard: React.FC<CutoffSensitivityCardProps> = ({
                       </span>
                     )}
                   </div>
-                  {isSelected ? (
+                  {isSelected && (
                     <span className="text-[11px] flex items-center gap-1 text-[#176B4D] font-semibold">
                       <Check className="w-3.5 h-3.5" /> Active
-                    </span>
-                  ) : (
-                    <span className="text-[11px] text-[#777C76] hover:text-[#202521] flex items-center gap-0.5">
-                      Select <ArrowRight className="w-2.5 h-2.5" />
                     </span>
                   )}
                 </div>
@@ -110,7 +103,7 @@ export const CutoffSensitivityCard: React.FC<CutoffSensitivityCardProps> = ({
                     <span className="text-[#777C76]">Bias:</span>
                     <span
                       className={`font-mono font-medium ${
-                        item.bias_mw > 0 ? 'text-amber-700' : 'text-[#2B6CB0]'
+                        item.bias_mw > 0 ? 'text-amber-800' : 'text-[#2B6CB0]'
                       }`}
                     >
                       {formatSignedMW(item.bias_mw)}
@@ -135,7 +128,7 @@ export const CutoffSensitivityCard: React.FC<CutoffSensitivityCardProps> = ({
                     {item.delta_mae_mw} MW
                   </span>
                 ) : isWorseThanBaseline ? (
-                  <span className="font-mono font-bold text-amber-700 flex items-center gap-0.5">
+                  <span className="font-mono font-bold text-amber-800 flex items-center gap-0.5">
                     <TrendingUp className="w-3.5 h-3.5" />
                     +{item.delta_mae_mw} MW
                   </span>

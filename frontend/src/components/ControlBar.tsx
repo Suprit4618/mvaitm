@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, HelpCircle, Check, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, HelpCircle, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { AvailableDatesResponse } from '../types/api';
 
 interface ControlBarProps {
@@ -177,7 +177,6 @@ export const ControlBar: React.FC<ControlBarProps> = ({
                   }
                 >
                   {preset}
-                  {preset === '11:00' && <span className="ml-0.5 text-[10px] text-emerald-200">★</span>}
                 </button>
               ))}
               <button
@@ -240,9 +239,8 @@ export const ControlBar: React.FC<ControlBarProps> = ({
               type="button"
               onClick={onApply}
               disabled={loading}
-              className="px-3.5 py-1.5 bg-[#176B4D] hover:bg-[#12543C] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-1.5 bg-[#176B4D] hover:bg-[#12543C] text-white text-xs font-semibold rounded-lg shadow-2xs transition-colors disabled:opacity-50 cursor-pointer"
             >
-              <Check className="w-3.5 h-3.5" />
               <span>{loading ? 'Evaluating...' : 'Apply'}</span>
             </button>
 
@@ -260,15 +258,15 @@ export const ControlBar: React.FC<ControlBarProps> = ({
 
         {/* Sub-Bar: Perspective Pairing & Analytical Baseline Context */}
         <div className="flex flex-wrap items-center justify-between text-xs text-[#777C76] border-t border-[#E7E5DE]/80 pt-2.5 gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium text-[#202521]">Selected Perspective:</span>
-            <span className="text-[#176B4D] font-mono font-semibold">{selectedDate}</span>
-            <ArrowRight className="w-3 h-3 text-[#777C76]" />
-            <span className="text-[#202521] font-medium">{pairedLabel}</span>
+            <span className="text-[#176B4D] font-mono font-semibold whitespace-nowrap">{selectedDate}</span>
+            <ArrowRight className="w-3 h-3 text-[#777C76] shrink-0" />
+            <span className="text-[#202521] font-medium whitespace-nowrap">{pairedLabel}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[11px]">
-            <span className="text-amber-700 font-medium">Analytical Baseline:</span>
+          <div className="flex items-center gap-1.5 text-[11px] whitespace-nowrap">
+            <span className="text-amber-800 font-medium">Analytical Baseline:</span>
             <span>
               {cutoffPreset === '11:00'
                 ? '11:00 UTC is an internal desk review baseline (Nord Pool D-1 closes at 09:50 GMT).'

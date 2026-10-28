@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { ControlBar } from './components/ControlBar';
-import { ProcurementContext } from './components/ProcurementContext';
 import { KpiGrid } from './components/KpiGrid';
 import { ForecastChart } from './components/ForecastChart';
 import { ErrorAnalysisSection } from './components/ErrorAnalysisSection';
@@ -241,9 +240,6 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Client Objectives Progressive Disclosure */}
-        <ProcurementContext />
-
         {loading && !analysis ? (
           /* Initial Loading Skeleton */
           <div className="h-96 flex flex-col items-center justify-center space-y-3 text-[#777C76]">
@@ -266,7 +262,7 @@ export const App: React.FC = () => {
               deliveryDate={analysis.delivery_date}
             />
 
-            {/* 5. Cutoff Sensitivity Matrix (Objective 5) */}
+            {/* 5. Cutoff Sensitivity Matrix */}
             <CutoffSensitivityCard
               comparisonData={cutoffComparison}
               currentPreset={cutoffPreset}
@@ -277,7 +273,7 @@ export const App: React.FC = () => {
               loading={cutoffLoading}
             />
 
-            {/* 6. Error & Horizon Analysis (Objectives 3 & 4) */}
+            {/* 6. Error & Horizon Analysis */}
             <ErrorAnalysisSection
               intervals={analysis.intervals}
               viewMode={viewMode}
