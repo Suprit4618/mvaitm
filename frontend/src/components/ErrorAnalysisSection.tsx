@@ -137,7 +137,7 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
           </div>
 
           <div className="w-full h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={260} minWidth={0} debounce={0}>
               <BarChart data={dailyErrorData} margin={{ top: 10, right: 15, left: 15, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E7E5DE" vertical={false} />
                 <XAxis dataKey="label" stroke="#777C76" fontSize={11} tickLine={false} interval={viewMode === 'hourly' ? 1 : 3} />
@@ -173,10 +173,10 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
                     return null;
                   }}
                 />
-                <Bar dataKey="error" radius={[3, 3, 0, 0]}>
-                  {dailyErrorData.map((entry, index) => (
+                <Bar dataKey="error" radius={[3, 3, 0, 0]} isAnimationActive={false}>
+                  {dailyErrorData.map((entry) => (
                     <Cell
-                      key={`cell-${index}`}
+                      key={`cell-${entry.label}`}
                       fill={entry.error !== null && entry.error > 0 ? '#C05621' : '#2B6CB0'}
                     />
                   ))}
@@ -190,7 +190,7 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
       {/* Tab 2: Diurnal Profile (Hour 0–23) */}
       {activeTab === 'diurnal' && (
         <div>
-          {monthlyLoading ? (
+          {monthlyLoading && !monthlyData ? (
             <div className="h-[260px] flex items-center justify-center text-xs text-[#777C76] animate-pulse">
               Computing 31-day diurnal hourly profile across 744 hours...
             </div>
@@ -211,7 +211,7 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
               </div>
 
               <div className="w-full h-[260px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={260} minWidth={0} debounce={0}>
                   <ComposedChart data={diurnalData} margin={{ top: 10, right: 15, left: 15, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E7E5DE" vertical={false} />
                     <XAxis dataKey="label" stroke="#777C76" fontSize={11} tickLine={false} interval={1} />
@@ -244,8 +244,8 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
                         return null;
                       }}
                     />
-                    <Bar dataKey="mae" fill="#176B4D" opacity={0.85} radius={[3, 3, 0, 0]} name="Average MAE (MW)" />
-                    <Line type="monotone" dataKey="bias" stroke="#C05621" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#C05621', stroke: '#FFFFFF', strokeWidth: 2 }} name="Average Bias (MW)" />
+                    <Bar dataKey="mae" fill="#176B4D" opacity={0.85} radius={[3, 3, 0, 0]} name="Average MAE (MW)" isAnimationActive={false} />
+                    <Line type="monotone" dataKey="bias" stroke="#C05621" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: '#C05621', stroke: '#FFFFFF', strokeWidth: 2 }} name="Average Bias (MW)" isAnimationActive={false} />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
@@ -257,7 +257,7 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
       {/* Tab 3: Monthly Horizon (31 Days) */}
       {activeTab === 'monthly' && (
         <div>
-          {monthlyLoading ? (
+          {monthlyLoading && !monthlyData ? (
             <div className="h-[260px] flex items-center justify-center text-xs text-[#777C76] animate-pulse">
               Loading 31-day January evaluation horizon...
             </div>
@@ -278,7 +278,7 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
               </div>
 
               <div className="w-full h-[260px]">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={260} minWidth={0} debounce={0}>
                   <LineChart data={monthlyTrendData} margin={{ top: 10, right: 15, left: 15, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E7E5DE" vertical={false} />
                     <XAxis dataKey="label" stroke="#777C76" fontSize={11} tickLine={false} interval={2} />
@@ -311,8 +311,8 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
                         return null;
                       }}
                     />
-                    <Line type="monotone" dataKey="mae" stroke="#176B4D" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#176B4D', stroke: '#FFFFFF', strokeWidth: 2 }} name="MAE (MW)" />
-                    <Line type="monotone" dataKey="bias" stroke="#C05621" strokeWidth={2} dot={false} strokeDasharray="3 3" activeDot={{ r: 4, fill: '#C05621', stroke: '#FFFFFF', strokeWidth: 2 }} name="Bias (MW)" />
+                    <Line type="monotone" dataKey="mae" stroke="#176B4D" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#176B4D', stroke: '#FFFFFF', strokeWidth: 2 }} name="MAE (MW)" isAnimationActive={false} />
+                    <Line type="monotone" dataKey="bias" stroke="#C05621" strokeWidth={2} dot={false} strokeDasharray="3 3" activeDot={{ r: 4, fill: '#C05621', stroke: '#FFFFFF', strokeWidth: 2 }} name="Bias (MW)" isAnimationActive={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

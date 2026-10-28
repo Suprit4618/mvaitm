@@ -119,7 +119,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
 
       {/* Chart Canvas */}
       <div className="w-full h-[340px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={340} minWidth={0} debounce={0}>
           <ComposedChart data={chartData} margin={{ top: 10, right: 15, left: 15, bottom: 20 }}>
             <defs>
               <linearGradient id="actualGradient" x1="0" y1="0" x2="0" y2="1">
@@ -152,6 +152,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
               dataKey="actual"
               fill="url(#actualGradient)"
               stroke="transparent"
+              isAnimationActive={false}
             />
 
             {/* Actual Outturn Line */}
@@ -163,6 +164,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
               strokeWidth={2.5}
               dot={false}
               activeDot={{ r: 5, fill: '#176B4D', stroke: '#FFFFFF', strokeWidth: 2 }}
+              isAnimationActive={false}
             />
 
             {/* Point-in-Time Forecast Line */}
@@ -175,6 +177,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
               strokeDasharray="5 5"
               dot={false}
               activeDot={{ r: 5, fill: '#2B6CB0', stroke: '#FFFFFF', strokeWidth: 2 }}
+              isAnimationActive={false}
             />
           </ComposedChart>
         </ResponsiveContainer>
