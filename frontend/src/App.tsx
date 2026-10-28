@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { ControlBar } from './components/ControlBar';
+import { ProcurementContext } from './components/ProcurementContext';
 import { KpiGrid } from './components/KpiGrid';
 import { ForecastChart } from './components/ForecastChart';
 import { ErrorAnalysisSection } from './components/ErrorAnalysisSection';
@@ -22,7 +23,7 @@ import type {
   MonthlySummaryResponse,
   CutoffComparisonResponse
 } from './types/api';
-import { AlertCircle, RefreshCw, X, CheckCircle2, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw, X, Check } from 'lucide-react';
 
 export const App: React.FC = () => {
   // App state
@@ -50,7 +51,6 @@ export const App: React.FC = () => {
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [isMethodologyOpen, setIsMethodologyOpen] = useState(false);
-  const [showObjectives, setShowObjectives] = useState(true);
 
   // Initial setup: health & dates
   useEffect(() => {
@@ -63,7 +63,7 @@ export const App: React.FC = () => {
             return null;
           }),
           fetchAvailableDates().catch((err) => {
-            console.error('Dates check failed:', err);
+            console.error('Available dates check failed:', err);
             return null;
           })
         ]);
@@ -76,7 +76,7 @@ export const App: React.FC = () => {
     init();
   }, []);
 
-  // Fetch daily analysis & cutoff sensitivity
+  // Fetch daily analysis
   const loadDailyAnalysis = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -168,7 +168,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F7F6F2] text-[#202521] flex flex-col font-sans">
       {/* 1. Header */}
       <Header
         health={health}
@@ -201,22 +201,22 @@ export const App: React.FC = () => {
 
       {/* Sync Success Notification */}
       {syncMessage && (
-        <div className="bg-emerald-950/80 border-b border-emerald-500/40 px-6 py-2 text-xs text-emerald-300 text-center flex items-center justify-center gap-2">
-          <span>✓</span>
+        <div className="bg-[#176B4D]/10 border-b border-[#176B4D]/20 px-6 py-2 text-xs text-[#176B4D] font-medium text-center flex items-center justify-center gap-2">
+          <Check className="w-3.5 h-3.5" />
           <span>{syncMessage}</span>
         </div>
       )}
 
       {/* Main Dashboard Layout */}
-      <main className="max-w-7xl mx-auto px-6 py-6 w-full flex-1 space-y-6">
+      <main className="max-w-7xl mx-auto px-6 py-6 w-full flex-1 space-y-5">
         {/* Error Notification Banner */}
         {error && (
-          <div className="bg-rose-950/90 border border-rose-500/50 rounded-lg p-4 flex items-start justify-between gap-3 text-xs shadow-lg">
+          <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-start justify-between gap-3 text-xs shadow-xs">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-rose-200 m-0">Analysis Query Error</h4>
-                <p className="text-rose-300 mt-1 leading-relaxed">{error}</p>
+                <h4 className="font-semibold text-rose-900 m-0">Analysis Query Error</h4>
+                <p className="text-rose-700 mt-1 leading-relaxed">{error}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -225,14 +225,14 @@ export const App: React.FC = () => {
                   loadDailyAnalysis();
                   loadCutoffSensitivity();
                 }}
-                className="px-3 py-1 bg-rose-700 hover:bg-rose-600 text-white font-medium rounded-sm transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3 h-3" />
                 Retry
               </button>
               <button
                 onClick={() => setError(null)}
-                className="p-1 text-rose-400 hover:text-rose-200 transition-colors cursor-pointer"
+                className="p-1 text-rose-500 hover:text-rose-700 transition-colors cursor-pointer"
                 title="Dismiss"
               >
                 <X className="w-4 h-4" />
@@ -241,77 +241,25 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Client Objectives Audit Panel */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs shadow-xs">
-          <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowObjectives(!showObjectives)}>
-            <div className="flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-emerald-400" />
-              <span className="font-semibold text-slate-200">UK Procurement Intelligence Criteria & Coverage</span>
-              <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/40">
-                5 / 5 Objectives Met
-              </span>
-            </div>
-            <button className="text-slate-400 hover:text-slate-200 p-0.5">
-              {showObjectives ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
-          </div>
-
-          {showObjectives && (
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-2.5 mt-3 pt-2.5 border-t border-slate-800 text-[11px] leading-snug">
-              <div className="bg-slate-950/70 p-2 rounded border border-slate-800/80">
-                <div className="font-semibold text-cyan-300 flex items-center gap-1 mb-1">
-                  <CheckCircle2 className="w-3 h-3 text-cyan-400 shrink-0" /> 1. Forecast at Cutoff
-                </div>
-                <div className="text-slate-400">Point-in-time selection (publishTime &le; cutoff) without lookahead bias.</div>
-              </div>
-
-              <div className="bg-slate-950/70 p-2 rounded border border-slate-800/80">
-                <div className="font-semibold text-emerald-300 flex items-center gap-1 mb-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" /> 2. Actual Generation
-                </div>
-                <div className="text-slate-400">Verified FUELHH WIND actuals harmonized to like-for-like 1h/30m resolution.</div>
-              </div>
-
-              <div className="bg-slate-950/70 p-2 rounded border border-slate-800/80">
-                <div className="font-semibold text-indigo-300 flex items-center gap-1 mb-1">
-                  <CheckCircle2 className="w-3 h-3 text-indigo-400 shrink-0" /> 3. Magnitude of Error
-                </div>
-                <div className="text-slate-400">MAE, RMSE, nMAE %, error percentiles (P10–P90), and cashout risk sign.</div>
-              </div>
-
-              <div className="bg-slate-950/70 p-2 rounded border border-slate-800/80">
-                <div className="font-semibold text-amber-300 flex items-center gap-1 mb-1">
-                  <CheckCircle2 className="w-3 h-3 text-amber-400 shrink-0" /> 4. Hourly / SP Profile
-                </div>
-                <div className="text-slate-400">Intraday delivery residuals and 31-day January 24-hour diurnal profile.</div>
-              </div>
-
-              <div className="bg-slate-950/70 p-2 rounded border border-slate-800/80">
-                <div className="font-semibold text-fuchsia-300 flex items-center gap-1 mb-1">
-                  <CheckCircle2 className="w-3 h-3 text-fuchsia-400 shrink-0" /> 5. Cutoff Sensitivity
-                </div>
-                <div className="text-slate-400">Side-by-side accuracy matrix comparing 09:00, 11:00, 14:00, and 17:00 UTC.</div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Client Objectives Progressive Disclosure */}
+        <ProcurementContext />
 
         {loading && !analysis ? (
           /* Initial Loading Skeleton */
-          <div className="h-96 flex flex-col items-center justify-center space-y-3 text-slate-400">
-            <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs font-medium">Reconstructing historical point-in-time forecast...</span>
+          <div className="h-96 flex flex-col items-center justify-center space-y-3 text-[#777C76]">
+            <div className="w-8 h-8 border-2 border-[#176B4D] border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs font-medium">Reconstructing point-in-time forecast from Elexon lakehouse...</span>
           </div>
         ) : analysis ? (
           <>
-            {/* 3. KPI Grid */}
+            {/* 3. Bento KPI Grid */}
             <KpiGrid
               metrics={analysis.metrics}
               coverage={analysis.coverage}
               viewMode={viewMode}
             />
 
-            {/* 4. Forecast vs Actual Chart */}
+            {/* 4. Forecast vs Actual Centerpiece Chart */}
             <ForecastChart
               intervals={analysis.intervals}
               viewMode={viewMode}
@@ -329,7 +277,7 @@ export const App: React.FC = () => {
               loading={cutoffLoading}
             />
 
-            {/* 6. Error & Residual Analysis (Objectives 3 & 4) */}
+            {/* 6. Error & Horizon Analysis (Objectives 3 & 4) */}
             <ErrorAnalysisSection
               intervals={analysis.intervals}
               viewMode={viewMode}
@@ -337,7 +285,7 @@ export const App: React.FC = () => {
               monthlyLoading={monthlyLoading}
             />
 
-            {/* 7. Interval Records Data Table with CSV Export */}
+            {/* 7. Detailed Audit Records Data Table with CSV Export */}
             <DataTable
               intervals={analysis.intervals}
               deliveryDate={analysis.delivery_date}
@@ -355,20 +303,20 @@ export const App: React.FC = () => {
         onClose={() => setIsMethodologyOpen(false)}
       />
 
-      {/* Footer */}
-      <footer className="bg-slate-900 border-t border-slate-800 px-6 py-4 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      {/* Institutional Footer */}
+      <footer className="bg-white border-t border-[#E7E5DE] px-6 py-4 mt-auto">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs text-[#777C76] gap-2">
           <div>
-            WindSight &copy; 2026. UK Wholesale Day-Ahead Forecast Intelligence Platform.
+            WindSight &copy; 2026. Institutional Electricity Procurement Forecast Intelligence Platform.
           </div>
           <div className="flex items-center gap-4">
-            <span>Data: Elexon BMRS (FUELHH &amp; WINDFOR)</span>
+            <span>Data Sources: Elexon BMRS (FUELHH actuals &amp; WINDFOR forecasts)</span>
             <span>&bull;</span>
             <button
               onClick={() => setIsMethodologyOpen(true)}
-              className="text-slate-400 hover:text-cyan-400 transition-colors cursor-pointer"
+              className="text-[#202521] hover:text-[#176B4D] font-medium transition-colors cursor-pointer"
             >
-              Methodology &amp; Disclaimers
+              Methodology &amp; Market Context
             </button>
           </div>
         </div>

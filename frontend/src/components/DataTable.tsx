@@ -35,90 +35,99 @@ export const DataTable: React.FC<DataTableProps> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-4 shadow-sm space-y-3">
+    <div className="bg-white border border-[#E7E5DE] rounded-xl p-5 shadow-2xs space-y-3.5">
       {/* Header & Export Action */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E7E5DE] pb-3">
         <div className="flex items-center gap-2">
-          <Table className="w-4 h-4 text-emerald-400" />
-          <h3 className="text-sm font-semibold text-slate-200 m-0">
-            Interval Audit & Outturn Records ({filtered.length} intervals)
+          <Table className="w-4 h-4 text-[#176B4D]" />
+          <h3 className="text-base font-semibold text-[#202521] m-0 tracking-tight">
+            Interval Audit &amp; Outturn Records
           </h3>
+          <span className="text-xs text-[#777C76] font-mono">
+            ({filtered.length} intervals)
+          </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Quick Filter */}
+        <div className="flex items-center gap-2.5">
+          {/* Search Filter */}
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[#777C76] absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search interval / time..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md pl-8 pr-3 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-emerald-500 w-48"
+              className="bg-[#F7F6F2] border border-[#E7E5DE] text-[#202521] text-xs rounded-lg pl-8 pr-3 py-1.5 focus:outline-hidden focus:ring-1 focus:ring-[#176B4D] w-48"
             />
           </div>
 
           {/* Export CSV Button */}
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-[#F7F6F2] text-[#202521] border border-[#E7E5DE] text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
             title="Download complete analysis as CSV"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-[#176B4D]" />
             <span>Export CSV</span>
           </button>
         </div>
       </div>
 
       {/* Table Container */}
-      <div className="overflow-x-auto max-h-[400px] overflow-y-auto border border-slate-800 rounded-md">
+      <div className="overflow-x-auto max-h-[420px] overflow-y-auto border border-[#E7E5DE] rounded-lg">
         <table className="w-full text-left text-xs border-collapse">
-          <thead className="bg-slate-950 text-slate-400 sticky top-0 border-b border-slate-800 text-[11px] font-medium tracking-wider uppercase">
+          <thead className="bg-[#F7F6F2] text-[#777C76] sticky top-0 border-b border-[#E7E5DE] text-[11px] font-semibold tracking-wider uppercase z-10">
             <tr>
-              <th className="py-2.5 px-3">Interval</th>
-              <th className="py-2.5 px-3">Time (UTC)</th>
-              <th className="py-2.5 px-3">Span</th>
-              <th className="py-2.5 px-3 text-right">Actual Outturn</th>
-              <th className="py-2.5 px-3 text-right">Point-in-Time Forecast</th>
-              <th className="py-2.5 px-3 text-right">Variance (Error)</th>
-              <th className="py-2.5 px-3">Forecast Publish Time (UTC)</th>
-              <th className="py-2.5 px-3 text-center">Status</th>
+              <th className="py-2.5 px-3.5">Interval</th>
+              <th className="py-2.5 px-3.5">Time (UTC)</th>
+              <th className="py-2.5 px-3.5">Span</th>
+              <th className="py-2.5 px-3.5 text-right">Actual Outturn</th>
+              <th className="py-2.5 px-3.5 text-right">Point-in-Time Forecast</th>
+              <th className="py-2.5 px-3.5 text-right">Variance (Error)</th>
+              <th className="py-2.5 px-3.5">Publish Timestamp (UTC)</th>
+              <th className="py-2.5 px-3.5 text-center">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 font-mono text-slate-300">
+          <tbody className="divide-y divide-[#E7E5DE]/80 font-mono text-[#202521]">
             {filtered.map((item) => {
               const isOver = item.error_mw !== null && item.error_mw > 0;
               const isUnder = item.error_mw !== null && item.error_mw < 0;
 
               return (
-                <tr key={item.interval_id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="py-2 px-3 font-semibold text-slate-200">{item.interval_id}</td>
-                  <td className="py-2 px-3 text-slate-400">{item.start_time.slice(11, 16)}</td>
-                  <td className="py-2 px-3 text-slate-400 font-sans">
+                <tr key={item.interval_id} className="hover:bg-[#F7F6F2]/50 transition-colors">
+                  <td className="py-2 px-3.5 font-semibold text-[#202521]">{item.interval_id}</td>
+                  <td className="py-2 px-3.5 text-[#777C76]">{item.start_time.slice(11, 16)}</td>
+                  <td className="py-2 px-3.5 text-[#777C76] font-sans">
                     {item.sp_span || (item.settlement_period ? `SP ${item.settlement_period}` : `Hour ${item.hour}`)}
                   </td>
-                  <td className="py-2 px-3 text-right text-emerald-400 font-semibold">
+                  <td className="py-2 px-3.5 text-right text-[#176B4D] font-semibold">
                     {formatMW(item.actual_mw)}
                   </td>
-                  <td className="py-2 px-3 text-right text-cyan-400 font-semibold">
+                  <td className="py-2 px-3.5 text-right text-[#2B6CB0] font-semibold">
                     {formatMW(item.forecast_mw)}
                   </td>
-                  <td
-                    className={`py-2 px-3 text-right font-bold ${
-                      isOver ? 'text-amber-400' : isUnder ? 'text-cyan-300' : 'text-slate-400'
-                    }`}
-                  >
-                    {formatSignedMW(item.error_mw)}
+                  <td className="py-2 px-3.5 text-right">
+                    <span
+                      className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-bold ${
+                        isOver
+                          ? 'text-amber-800 bg-amber-50 border border-amber-200'
+                          : isUnder
+                          ? 'text-blue-800 bg-blue-50 border border-blue-200'
+                          : 'text-[#777C76]'
+                      }`}
+                    >
+                      {formatSignedMW(item.error_mw)}
+                    </span>
                   </td>
-                  <td className="py-2 px-3 text-slate-400 text-[11px]">
+                  <td className="py-2 px-3.5 text-[#777C76] text-[11px]">
                     {item.publish_time ? item.publish_time.slice(0, 16).replace('T', ' ') : '—'}
                   </td>
-                  <td className="py-2 px-3 text-center">
+                  <td className="py-2 px-3.5 text-center">
                     <span
                       className={`inline-block px-2 py-0.5 text-[10px] rounded-full uppercase tracking-wider font-sans font-semibold ${
                         item.status === 'complete'
-                          ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-rose-950/80 text-rose-400 border border-rose-500/30'
+                          ? 'bg-[#176B4D]/10 text-[#176B4D] border border-[#176B4D]/20'
+                          : 'bg-rose-50 text-rose-700 border border-rose-200'
                       }`}
                     >
                       {item.status}

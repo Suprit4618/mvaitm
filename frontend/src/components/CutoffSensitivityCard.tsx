@@ -18,7 +18,7 @@ export const CutoffSensitivityCard: React.FC<CutoffSensitivityCardProps> = ({
 }) => {
   if (loading || !comparisonData) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-lg p-4 animate-pulse text-xs text-slate-400">
+      <div className="bg-white border border-[#E7E5DE] rounded-xl p-5 text-xs text-[#777C76] animate-pulse">
         Evaluating cutoff sensitivity across 09:00, 11:00, 14:00, and 17:00 UTC...
       </div>
     );
@@ -27,31 +27,31 @@ export const CutoffSensitivityCard: React.FC<CutoffSensitivityCardProps> = ({
   const { comparisons, delivery_date, decision_date } = comparisonData;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-lg p-4 shadow-sm">
+    <div className="bg-white border border-[#E7E5DE] rounded-xl p-5 shadow-2xs">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between mb-3 pb-2 border-b border-slate-800 gap-2">
+      <div className="flex flex-wrap items-center justify-between mb-4 pb-3 border-b border-[#E7E5DE] gap-2">
         <div>
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-sm font-semibold text-slate-200 m-0">
-              Cutoff Sensitivity Matrix (Decision Timing Impact)
+            <Clock className="w-4 h-4 text-[#176B4D]" />
+            <h3 className="text-base font-semibold text-[#202521] m-0 tracking-tight">
+              Decision Cutoff Sensitivity Matrix
             </h3>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800/50 text-cyan-300">
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#176B4D]/10 text-[#176B4D] border border-[#176B4D]/20">
               Objective 5 Answered
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-[#777C76] mt-0.5">
             How changing the internal procurement decision cutoff alters forecast accuracy on {delivery_date} (Decided {decision_date})
           </p>
         </div>
 
-        <div className="text-[11px] text-slate-400 font-mono">
-          Baseline: <span className="text-emerald-400 font-semibold">11:00 UTC (Midday Default)</span>
+        <div className="text-xs text-[#777C76]">
+          Baseline: <span className="font-semibold text-[#202521]">11:00 UTC (Midday Review)</span>
         </div>
       </div>
 
-      {/* 4-Column Sensitivity Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 4-Column Decision Support Matrix */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {comparisons.map((item) => {
           const isSelected = currentPreset === item.preset;
           const isBaseline = item.preset === '11:00';
@@ -62,86 +62,100 @@ export const CutoffSensitivityCard: React.FC<CutoffSensitivityCardProps> = ({
             <div
               key={item.preset}
               onClick={() => onSelectPreset(item.preset)}
-              className={`p-3 rounded-lg border transition-all cursor-pointer relative flex flex-col justify-between ${
+              className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                 isSelected
-                  ? 'bg-slate-800/90 border-cyan-500 shadow-md ring-1 ring-cyan-500/50'
-                  : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-950'
+                  ? 'bg-[#F7F6F2]/70 border-[#176B4D] ring-1 ring-[#176B4D]/30 shadow-2xs'
+                  : 'bg-white border-[#E7E5DE] hover:border-[#176B4D]/40 hover:bg-[#F7F6F2]/30'
               }`}
             >
               <div>
                 {/* Header inside card */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-mono text-sm font-bold text-slate-100">
+                    <span className="font-mono text-sm font-bold text-[#202521]">
                       {item.cutoff_time} UTC
                     </span>
                     {isBaseline && (
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/50">
-                        Default
+                      <span className="text-[9px] font-medium px-1.5 py-0.2 rounded bg-[#176B4D]/10 text-[#176B4D] border border-[#176B4D]/20">
+                        Baseline
                       </span>
                     )}
                   </div>
                   {isSelected ? (
-                    <span className="text-[10px] flex items-center gap-1 text-cyan-400 font-semibold">
-                      <Check className="w-3 h-3" /> Active
+                    <span className="text-[11px] flex items-center gap-1 text-[#176B4D] font-semibold">
+                      <Check className="w-3.5 h-3.5" /> Active
                     </span>
                   ) : (
-                    <span className="text-[10px] text-slate-400 hover:text-slate-200 flex items-center gap-0.5">
+                    <span className="text-[11px] text-[#777C76] hover:text-[#202521] flex items-center gap-0.5">
                       Select <ArrowRight className="w-2.5 h-2.5" />
                     </span>
                   )}
                 </div>
 
-                <div className="text-[11px] text-slate-400 line-clamp-1 mb-2.5" title={item.description}>
+                <div className="text-xs text-[#777C76] line-clamp-1 mb-3">
                   {item.preset === '09:00' && 'Pre-Auction Gate Closure'}
-                  {item.preset === '11:00' && 'Midday Position Review (Default)'}
+                  {item.preset === '11:00' && 'Midday Position Review (Baseline)'}
                   {item.preset === '14:00' && 'Afternoon Rebalancing'}
                   {item.preset === '17:00' && 'Evening Position Close'}
                 </div>
 
                 {/* Metrics */}
-                <div className="space-y-1.5 border-t border-slate-800/80 pt-2 text-xs">
+                <div className="space-y-1.5 border-t border-[#E7E5DE] pt-2.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">MAE:</span>
-                    <span className="font-mono font-bold text-slate-200">{formatMW(item.mae_mw)}</span>
+                    <span className="text-[#777C76]">MAE:</span>
+                    <span className="font-mono font-bold text-[#202521]">{formatMW(item.mae_mw)}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Bias:</span>
-                    <span className={`font-mono font-semibold ${item.bias_mw > 0 ? 'text-amber-400' : 'text-cyan-400'}`}>
+                    <span className="text-[#777C76]">Bias:</span>
+                    <span
+                      className={`font-mono font-medium ${
+                        item.bias_mw > 0 ? 'text-amber-700' : 'text-[#2B6CB0]'
+                      }`}
+                    >
                       {formatSignedMW(item.bias_mw)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">nMAE:</span>
-                    <span className="font-mono text-emerald-400 font-medium">{item.nmae_pct.toFixed(1)}%</span>
+                    <span className="text-[#777C76]">nMAE:</span>
+                    <span className="font-mono text-[#176B4D] font-medium">{item.nmae_pct.toFixed(1)}%</span>
                   </div>
                 </div>
               </div>
 
               {/* Delta vs 11:00 UTC */}
-              <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">vs 11:00 Baseline:</span>
+              <div className="mt-3 pt-2.5 border-t border-[#E7E5DE] flex items-center justify-between text-xs">
+                <span className="text-[#777C76]">vs 11:00 Baseline:</span>
                 {isBaseline ? (
-                  <span className="text-slate-400 font-mono">Reference</span>
+                  <span className="text-[#777C76] font-mono">Reference</span>
                 ) : isBetterThanBaseline ? (
-                  <span className="font-mono font-bold text-emerald-400 flex items-center gap-0.5">
-                    <TrendingDown className="w-3 h-3" />
+                  <span className="font-mono font-bold text-[#176B4D] flex items-center gap-0.5">
+                    <TrendingDown className="w-3.5 h-3.5" />
                     {item.delta_mae_mw} MW
                   </span>
                 ) : isWorseThanBaseline ? (
-                  <span className="font-mono font-bold text-rose-400 flex items-center gap-0.5">
-                    <TrendingUp className="w-3 h-3" />
+                  <span className="font-mono font-bold text-amber-700 flex items-center gap-0.5">
+                    <TrendingUp className="w-3.5 h-3.5" />
                     +{item.delta_mae_mw} MW
                   </span>
                 ) : (
-                  <span className="text-slate-400 font-mono">0 MW (identical)</span>
+                  <span className="text-[#777C76] font-mono">0 MW</span>
                 )}
               </div>
             </div>
           );
         })}
+      </div>
+
+      {/* Analytical Footnote */}
+      <div className="mt-3.5 pt-2.5 border-t border-[#E7E5DE]/80 text-[11px] text-[#777C76] flex items-center justify-between">
+        <span>
+          Note: 11:00 UTC is an analytical desk review baseline, not an official auction deadline.
+        </span>
+        <span className="hidden sm:inline">
+          Historical lower MAE does not guarantee future outperformance.
+        </span>
       </div>
     </div>
   );
