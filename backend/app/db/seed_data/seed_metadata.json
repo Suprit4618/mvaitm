@@ -1,0 +1,35 @@
+{
+  "dataset_title": "Elexon BMRS January 2026 Wind Generation & Forecast Historical Seed",
+  "retrieved_at": "2026-10-28T11:59:15.316277+00:00",
+  "source": "Official Elexon BMRS Insights Solution API (https://data.elexon.co.uk/bmrs/api/v1)",
+  "endpoints": {
+    "actuals": "/datasets/FUELHH/stream?fuelType=WIND",
+    "forecasts": "/datasets/WINDFOR/stream"
+  },
+  "target_scope": {
+    "primary_evaluation_window": {
+      "decision_dates": "2026-01-01 to 2026-01-31 (31 days)",
+      "delivery_dates": "2026-01-02 to 2026-02-01 (31 days)",
+      "total_hours": 744,
+      "total_half_hours": 1488
+    },
+    "boundary_validation_window": {
+      "decision_date": "2025-12-31",
+      "delivery_date": "2026-01-01",
+      "total_hours": 24,
+      "total_half_hours": 48
+    }
+  },
+  "record_counts": {
+    "actual_generation_records": 1584,
+    "forecast_generation_records": 19272,
+    "total_records": 20856
+  },
+  "data_quality_audit": {
+    "missing_settlement_periods": 0,
+    "null_values": 0,
+    "negative_generation_values": 0,
+    "duplicate_records": 0,
+    "coverage_pct": 100.0
+  }
+}

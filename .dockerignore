@@ -1,0 +1,25 @@
+# Version control
+.git
+.gitignore
+
+# Python cache & virtual environments
+__pycache__
+*.py[cod]
+*$py.class
+.pytest_cache
+.coverage
+htmlcov
+.venv
+venv
+env
+ENV
+
+# Frontend build & node_modules
+frontend/node_modules
+frontend/dist
+frontend/.vite
+
+# Logs & temp files
+*.log
+.DS_Store
+Thumbs.db
