@@ -230,6 +230,52 @@ class AnalysisService:
             "intervals": intervals
         }
 
+    def evaluate_cutoff_sensitivity(
+        self,
+        delivery_date: str,
+        view_mode: str = "hourly"
+    ) -> Dict[str, Any]:
+        """
+        Evaluates forecast error sensitivity across standard cutoff presets (09:00, 11:00, 14:00, 17:00 UTC)
+        for a target delivery day, quantifying how decision timing impacts forecast accuracy.
+        """
+        presets = ["09:00", "11:00", "14:00", "17:00"]
+        evaluations = {}
+        for p in presets:
+            evaluations[p] = self.evaluate_delivery_date(
+                delivery_date=delivery_date,
+                cutoff_preset=p,
+                view_mode=view_mode
+            )
+
+        base_mae = evaluations["11:00"]["metrics"]["mae_mw"]
+        dt_del = datetime.strptime(delivery_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        dt_dec = dt_del - timedelta(days=1)
+        decision_date = dt_dec.strftime("%Y-%m-%d")
+
+        comparisons = []
+        for p in presets:
+            ev = evaluations[p]
+            m = ev["metrics"]
+            delta = round(m["mae_mw"] - base_mae, 2)
+            comparisons.append({
+                "preset": p,
+                "cutoff_time": ev["cutoff_time"],
+                "description": ev["cutoff_description"],
+                "mae_mw": m["mae_mw"],
+                "rmse_mw": m["rmse_mw"],
+                "bias_mw": m["bias_mw"],
+                "nmae_pct": m["nmae_pct"],
+                "delta_mae_mw": delta
+            })
+
+        return {
+            "decision_date": decision_date,
+            "delivery_date": delivery_date,
+            "view_mode": view_mode,
+            "comparisons": comparisons
+        }
+
     def evaluate_primary_window(
         self,
         cutoff_preset: str = "11:00",

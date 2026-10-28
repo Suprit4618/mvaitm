@@ -124,3 +124,19 @@ def test_spa_static_serving(test_client):
     assert resp_api.status_code == 404
     assert resp_api.headers.get("content-type") == "application/json"
 
+def test_cutoff_comparison_endpoint(test_client):
+    """Tests the /api/cutoff-comparison endpoint comparing 09:00, 11:00, 14:00, and 17:00 cutoffs."""
+    resp = test_client.get("/api/cutoff-comparison?date=2026-01-14&date_mode=decision&view_mode=hourly")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["decision_date"] == "2026-01-14"
+    assert data["delivery_date"] == "2026-01-15"
+    assert len(data["comparisons"]) == 4
+    presets = [c["preset"] for c in data["comparisons"]]
+    assert presets == ["09:00", "11:00", "14:00", "17:00"]
+    # 11:00 UTC default delta should be 0.0
+    p11 = next(c for c in data["comparisons"] if c["preset"] == "11:00")
+    assert p11["delta_mae_mw"] == 0.0
+    assert p11["mae_mw"] > 0
+
+

@@ -146,3 +146,20 @@ class SyncResponse(BaseModel):
     forecasts_ingested: int
     duration_seconds: float
     message: str
+
+class CutoffComparisonItem(BaseModel):
+    preset: str
+    cutoff_time: str
+    description: str
+    mae_mw: float
+    rmse_mw: float
+    bias_mw: float
+    nmae_pct: float
+    delta_mae_mw: float
+
+class CutoffComparisonResponse(BaseModel):
+    decision_date: str
+    delivery_date: str
+    view_mode: str
+    comparisons: List[CutoffComparisonItem]
+

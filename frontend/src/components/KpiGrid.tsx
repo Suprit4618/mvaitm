@@ -51,8 +51,15 @@ export const KpiGrid: React.FC<KpiGridProps> = ({ metrics, coverage, viewMode })
         <div className={`text-xl font-bold font-mono ${isOverforecast ? 'text-amber-300' : 'text-cyan-300'}`}>
           {formatSignedMW(metrics.bias_mw)}
         </div>
-        <div className="text-[10px] text-slate-400 mt-0.5 truncate" title={isOverforecast ? 'Over-forecast (Long exposure)' : 'Under-forecast (Short exposure)'}>
-          {isOverforecast ? '⚠️ Over-forecast (Long)' : '⚠️ Under-forecast (Short)'}
+        <div
+          className="text-[10px] text-slate-400 mt-0.5 truncate cursor-help"
+          title={
+            isOverforecast
+              ? 'Forecast > Outturn: Desk under-bought day-ahead. Imbalance risk: SHORT position exposed to System Buy Price (SBP).'
+              : 'Forecast < Outturn: Desk over-bought day-ahead. Imbalance risk: LONG position cashed out at System Sell Price (SSP).'
+          }
+        >
+          {isOverforecast ? '⚠️ Over-forecast (Short Risk)' : 'ℹ️ Under-forecast (Long Surplus)'}
         </div>
       </div>
 

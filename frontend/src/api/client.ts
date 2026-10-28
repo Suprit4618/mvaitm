@@ -7,7 +7,8 @@ import type {
   HealthResponse,
   AvailableDatesResponse,
   DailyAnalysisResponse,
-  MonthlySummaryResponse
+  MonthlySummaryResponse,
+  CutoffComparisonResponse
 } from '../types/api';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -89,4 +90,20 @@ export async function triggerSync(startDate = '2025-12-31', endDate = '2026-02-0
     body: JSON.stringify({ start_date: startDate, end_date: endDate })
   });
   return handleResponse<{ status: string; message: string }>(res);
+}
+
+export interface CutoffComparisonParams {
+  date: string;
+  date_mode: 'decision' | 'delivery';
+  view_mode?: 'hourly' | 'half_hourly';
+}
+
+export async function fetchCutoffComparison(params: CutoffComparisonParams): Promise<CutoffComparisonResponse> {
+  const query = new URLSearchParams({
+    date: params.date,
+    date_mode: params.date_mode,
+    view_mode: params.view_mode || 'hourly'
+  });
+  const res = await fetch(`${API_BASE}/api/cutoff-comparison?${query.toString()}`);
+  return handleResponse<CutoffComparisonResponse>(res);
 }

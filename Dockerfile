@@ -9,7 +9,7 @@ FROM node:22-alpine AS frontend-builder
 WORKDIR /frontend
 
 # Install dependencies
-COPY frontend/package.json ./
+COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm install --no-audit --prefer-offline
 
 # Copy frontend source and build production bundle

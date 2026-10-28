@@ -137,3 +137,21 @@ export interface MonthlySummaryResponse {
   daily_trends: DailyTrendItem[];
   diurnal_profile: DiurnalProfileItem[];
 }
+
+export interface CutoffComparisonItem {
+  preset: string;
+  cutoff_time: string;
+  description: string;
+  mae_mw: number;
+  rmse_mw: number;
+  bias_mw: number;
+  nmae_pct: number;
+  delta_mae_mw: number;
+}
+
+export interface CutoffComparisonResponse {
+  decision_date: string;
+  delivery_date: string;
+  view_mode: 'hourly' | 'half_hourly';
+  comparisons: CutoffComparisonItem[];
+}

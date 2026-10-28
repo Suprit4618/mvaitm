@@ -10,11 +10,12 @@ import {
   Cell,
   ReferenceLine,
   LineChart,
-  Line
+  Line,
+  ComposedChart
 } from 'recharts';
 import type { IntervalEvaluation, MonthlySummaryResponse } from '../types/api';
 import { formatMW, formatSignedMW } from '../utils/formatters';
-import { BarChart3, CalendarRange } from 'lucide-react';
+import { BarChart3, CalendarRange, Clock } from 'lucide-react';
 
 interface ErrorAnalysisSectionProps {
   intervals: IntervalEvaluation[];
@@ -29,7 +30,7 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
   monthlyData,
   monthlyLoading
 }) => {
-  const [activeTab, setActiveTab] = useState<'daily' | 'monthly'>('daily');
+  const [activeTab, setActiveTab] = useState<'daily' | 'monthly' | 'diurnal'>('daily');
 
   // Daily interval errors
   const dailyErrorData = intervals
@@ -53,6 +54,15 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
     actual: item.mean_actual_mw
   })) || [];
 
+  // Monthly diurnal profile
+  const diurnalData = monthlyData?.diurnal_profile.map((item) => ({
+    label: item.period_label,
+    mae: item.mae_mw,
+    bias: item.mean_error_mw,
+    rmse: item.rmse_mw,
+    samples: item.sample_count
+  })) || [];
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-lg p-4 shadow-sm">
       {/* Tab Switcher & Title */}
@@ -63,9 +73,9 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
             Forecast Error & Volatility Profile
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
-            {activeTab === 'daily'
-              ? 'Intraday error residuals by delivery interval (Forecast - Actual)'
-              : 'Full January 2026 Monthly Trend across 31 decision days (744 hours)'}
+            {activeTab === 'daily' && 'Intraday error residuals by delivery interval (Forecast - Actual)'}
+            {activeTab === 'monthly' && 'Full January 2026 Monthly Trend across 31 decision days (744 hours)'}
+            {activeTab === 'diurnal' && 'Average forecast accuracy by delivery hour across all 744 January 2026 hours (Objective 4)'}
           </p>
         </div>
 
@@ -81,6 +91,16 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab('diurnal')}
+            className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer flex items-center gap-1 ${
+              activeTab === 'diurnal' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            Diurnal Profile (Hour 0–23)
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab('monthly')}
             className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer flex items-center gap-1 ${
               activeTab === 'monthly' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-slate-200'
@@ -93,7 +113,7 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
       </div>
 
       {/* Content Area */}
-      {activeTab === 'daily' ? (
+      {activeTab === 'daily' && (
         <div>
           <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
             <span>Residual MW by Period (Positive = Over-forecast / Negative = Under-forecast)</span>
@@ -142,7 +162,94 @@ export const ErrorAnalysisSection: React.FC<ErrorAnalysisSectionProps> = ({
             </ResponsiveContainer>
           </div>
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'diurnal' && (
+        <div>
+          {monthlyLoading ? (
+            <div className="h-[260px] flex items-center justify-center text-xs text-slate-400">
+              Loading January 2026 diurnal profile...
+            </div>
+          ) : (
+            <div>
+              <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+                <span>
+                  Average MAE (Bars) and Bias (Line) by Delivery Period across all 31 Days in January 2026
+                </span>
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1 text-cyan-400">
+                    <span className="w-2.5 h-2.5 rounded-xs bg-cyan-500" /> Average MAE (MW)
+                  </span>
+                  <span className="flex items-center gap-1 text-amber-400">
+                    <span className="w-2.5 h-0.5 bg-amber-400" /> Average Bias (MW)
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-full h-[260px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={diurnalData} margin={{ top: 10, right: 15, left: 10, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                    <XAxis
+                      dataKey="label"
+                      stroke="#64748b"
+                      fontSize={11}
+                      tickLine={false}
+                      interval={viewMode === 'hourly' ? 1 : 3}
+                    />
+                    <YAxis
+                      stroke="#64748b"
+                      fontSize={11}
+                      tickLine={false}
+                      unit=" MW"
+                      tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                    />
+                    <ReferenceLine y={0} stroke="#475569" strokeWidth={1.5} />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const d = payload[0].payload;
+                          return (
+                            <div className="bg-slate-900 border border-slate-700 p-2.5 rounded-md shadow-lg text-xs space-y-1">
+                              <div className="font-bold text-slate-200 border-b border-slate-800 pb-1">
+                                Delivery Period: {d.label} (31-day sample)
+                              </div>
+                              <div className="text-cyan-400 flex justify-between gap-3">
+                                <span>31-Day Mean MAE:</span>
+                                <span className="font-mono font-bold">{formatMW(d.mae)}</span>
+                              </div>
+                              <div className="text-amber-400 flex justify-between gap-3">
+                                <span>31-Day Forecast Bias:</span>
+                                <span className="font-mono font-bold">{formatSignedMW(d.bias)}</span>
+                              </div>
+                              <div className="text-slate-400 flex justify-between gap-3">
+                                <span>31-Day RMSE:</span>
+                                <span className="font-mono">{formatMW(d.rmse)}</span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar dataKey="mae" fill="#06b6d4" opacity={0.75} radius={[2, 2, 0, 0]} name="MAE" />
+                    <Line
+                      type="monotone"
+                      dataKey="bias"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      dot={{ r: 2 }}
+                      name="Bias"
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'monthly' && (
         <div>
           {monthlyLoading ? (
             <div className="h-[260px] flex items-center justify-center text-xs text-slate-400">

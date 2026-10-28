@@ -6,7 +6,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.136+-green.svg)](https://fastapi.tiangolo.com)
 [![React 19](https://img.shields.io/badge/React-19.3-61dafb.svg)](https://react.dev)
-[![Pytest](https://img.shields.io/badge/pytest-32%20passed-brightgreen.svg)](https://pytest.org)
+[![Pytest](https://img.shields.io/badge/pytest-33%20passed-brightgreen.svg)](https://pytest.org)
 [![Vitest](https://img.shields.io/badge/vitest-8%20passed-brightgreen.svg)](https://vitest.dev)
 [![Docker](https://img.shields.io/badge/Docker-Multi--stage%20Ready-2496ed.svg)](https://www.docker.com)
 [![Historical Coverage](https://img.shields.io/badge/January%20Coverage-100%25%20(744h)-success.svg)](https://data.elexon.co.uk)
@@ -23,14 +23,18 @@ A UK electricity utility purchasing electricity on the wholesale day-ahead marke
 2. **Harmonized Accuracy Analytics:** Compares National Grid ESO hourly forecasts (`WINDFOR`) against Elexon half-hourly actuals (`FUELHH`, filtered to `fuelType = WIND`).
 3. **Risk Metrics:** Calculates Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), Mean Signed Error (Bias), Normalized MAE (nMAE %), and empirical percentiles (P10, P50, P90).
 4. **Primary Evaluation Window:** Specifically evaluates procurement decisions made across **January 1–31, 2026** (delivering **January 2–February 1, 2026** across **744 delivery hours**).
+5. **Decision Cutoff Sensitivity Matrix:** Evaluates how shifting internal decision cutoffs (09:00, 11:00, 14:00, 17:00 UTC) impacts forecast accuracy.
 
 ### Visual Intelligence Console
 
 ![WindSight Executive Analytics Console](docs/screenshots/dashboard_overview.png)
-*Figure 1: Executive KPI scorecard, Generation Outturn vs. Point-in-Time Forecast (Recharts), and intraday error residual profile.*
+*Figure 1: Executive KPI scorecard, Generation Outturn vs. Point-in-Time Forecast (Recharts), and procurement criteria coverage.*
+
+![Cutoff Sensitivity Matrix and 744h Diurnal Hourly Profile](docs/screenshots/cutoff_sensitivity_and_diurnal.png)
+*Figure 2: Cutoff Sensitivity Matrix (09:00, 11:00, 14:00, 17:00 UTC with $\Delta\text{ MAE}$) and 31-day January diurnal profile (Hour 0–23).*
 
 ![Interval Audit Records and CSV Export](docs/screenshots/interval_table_and_csv.png)
-*Figure 2: Searchable interval-by-interval audit table and RFC-4180 compliant CSV export generator.*
+*Figure 3: Searchable interval-by-interval audit table and RFC-4180 compliant CSV export generator.*
 
 ---
 
@@ -282,7 +286,7 @@ curl http://localhost:8000/api/health
 ## 7. Running Automated Tests
 
 ### 7.1 Backend Test Suite (Python / Pytest)
-The backend test suite contains **32 automated tests** covering mathematical properties, point-in-time filtering, duplicate handling, missing data resilience, sync bounds validation, static SPA serving, and REST endpoints:
+The backend test suite contains **33 automated tests** covering mathematical properties, point-in-time filtering, duplicate handling, missing data resilience, sync bounds validation, static SPA serving, and REST endpoints:
 
 ```bash
 # Run complete test suite
@@ -294,7 +298,7 @@ pytest backend/tests/test_point_in_time.py -v
 pytest backend/tests/test_api_endpoints.py -v
 ```
 
-**Status: 32 passed in 1.41s**
+**Status: 33 passed in 1.96s**
 
 ### 7.2 Frontend Test Suite (Vitest) & Production Build
 The frontend includes automated unit tests covering API query serialization, error status mapping, numeric formatting, and RFC-4180 CSV generation:
@@ -444,7 +448,63 @@ curl "http://localhost:8000/api/monthly-summary?cutoff_preset=11:00&view_mode=ho
 }
 ```
 
-### 8.5 `POST /api/sync`
+### 8.5 `GET /api/cutoff-comparison`
+Evaluates side-by-side cutoff sensitivity for the active day across standard presets (09:00, 11:00, 14:00, 17:00 UTC) with $\Delta\text{ MAE}$ relative to the 11:00 UTC baseline:
+```bash
+curl "http://localhost:8000/api/cutoff-comparison?date=2026-01-14&date_mode=decision&view_mode=hourly"
+```
+**Sample Response (Excerpt):**
+```json
+{
+  "decision_date": "2026-01-14",
+  "delivery_date": "2026-01-15",
+  "view_mode": "hourly",
+  "comparisons": [
+    {
+      "preset": "09:00",
+      "cutoff_time": "09:00",
+      "description": "Pre-Auction Decision Point (Informs order bids prior to EPEX 09:20 & Nord Pool 09:50 auction closures)",
+      "mae_mw": 1041.83,
+      "rmse_mw": 1149.26,
+      "bias_mw": 1041.83,
+      "nmae_pct": 9.86,
+      "delta_mae_mw": -68.42
+    },
+    {
+      "preset": "11:00",
+      "cutoff_time": "11:00",
+      "description": "Post-Auction Position Review & Midday Continuous Rebalancing (Analytical Default Assumption)",
+      "mae_mw": 1110.25,
+      "rmse_mw": 1212.22,
+      "bias_mw": 1110.25,
+      "nmae_pct": 10.51,
+      "delta_mae_mw": 0.0
+    },
+    {
+      "preset": "14:00",
+      "cutoff_time": "14:00",
+      "description": "Early Afternoon Continuous Trading & Position Adjustment Window",
+      "mae_mw": 1189.79,
+      "rmse_mw": 1289.02,
+      "bias_mw": 1189.79,
+      "nmae_pct": 11.26,
+      "delta_mae_mw": 79.54
+    },
+    {
+      "preset": "17:00",
+      "cutoff_time": "17:00",
+      "description": "End-of-Day Continuous Trading Position Freeze",
+      "mae_mw": 1580.46,
+      "rmse_mw": 1750.88,
+      "bias_mw": 1547.50,
+      "nmae_pct": 14.96,
+      "delta_mae_mw": 470.21
+    }
+  ]
+}
+```
+
+### 8.6 `POST /api/sync`
 Triggers on-demand synchronization from live Elexon BMRS API with rate and date bounds validation:
 ```bash
 curl -X POST "http://localhost:8000/api/sync" \

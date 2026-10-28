@@ -21,6 +21,7 @@ from backend.app.api.schemas import (
     AvailableDatesResponse,
     DailyAnalysisResponse,
     MonthlySummaryResponse,
+    CutoffComparisonResponse,
     SyncRequest,
     SyncResponse
 )
@@ -141,6 +142,52 @@ def get_daily_analysis(
     except Exception as e:
         logger.error(f"Error evaluating delivery date {delivery_date}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Analysis calculation error: {str(e)}")
+
+@router.get("/cutoff-comparison", response_model=CutoffComparisonResponse)
+def get_cutoff_comparison(
+    date: str = Query("2026-01-14", description="Evaluation date (YYYY-MM-DD)"),
+    date_mode: str = Query("decision", description="Perspective: 'decision' (default) or 'delivery'"),
+    view_mode: str = Query("hourly", description="Temporal resolution: 'hourly' (default) or 'half_hourly'"),
+    service: AnalysisService = Depends(get_analysis_service)
+):
+    """
+    Evaluates forecast error sensitivity across standard cutoff presets (09:00, 11:00, 14:00, 17:00 UTC)
+    for a target day, directly answering how changing decision timing impacts accuracy.
+    """
+    try:
+        dt = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Expected YYYY-MM-DD.")
+
+    if date_mode.lower() == "decision":
+        if not (datetime(2025, 12, 31, tzinfo=timezone.utc) <= dt <= datetime(2026, 1, 31, tzinfo=timezone.utc)):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Selected decision date {date} is outside the allowed January 2026 evaluation window."
+            )
+        delivery_date = (dt + timedelta(days=1)).strftime("%Y-%m-%d")
+    elif date_mode.lower() == "delivery":
+        if not (datetime(2026, 1, 1, tzinfo=timezone.utc) <= dt <= datetime(2026, 2, 1, tzinfo=timezone.utc)):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Selected delivery date {date} is outside the allowed January 2026 evaluation window."
+            )
+        delivery_date = date
+    else:
+        raise HTTPException(status_code=400, detail="Invalid date_mode. Expected 'decision' or 'delivery'.")
+
+    view = view_mode.lower()
+    if view not in ("hourly", "half_hourly"):
+        raise HTTPException(status_code=400, detail="Invalid view_mode. Expected 'hourly' or 'half_hourly'.")
+
+    try:
+        return service.evaluate_cutoff_sensitivity(
+            delivery_date=delivery_date,
+            view_mode=view
+        )
+    except Exception as e:
+        logger.error(f"Error evaluating cutoff sensitivity for {delivery_date}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Cutoff comparison error: {str(e)}")
 
 @router.get("/monthly-summary", response_model=MonthlySummaryResponse)
 def get_monthly_summary(
